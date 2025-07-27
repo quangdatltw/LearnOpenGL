@@ -17,8 +17,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1000;
+const unsigned int SCR_HEIGHT = 800;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -27,11 +27,11 @@ float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
 // timing
-float deltaTime = 0.0f;	
+float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 // lighting
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+glm::vec3 lightPos(0.0f, 0.0f, 3.5f);
 
 int main()
 {
@@ -77,53 +77,167 @@ int main()
 
     // build and compile our shader zprogram
     // ------------------------------------
-    Shader lightingShader("2.2.basic_lighting.vs", "2.2.basic_lighting.fs");
+    //Shader lightingShader("2.2.basic_lighting.vs", "2.2.basic_lighting.fs");
+    Shader lightingShader("2.2.gouraud_lighting.vs", "2.2.gouraud_lighting.fs");
+    //Shader lightingShader("2.2.flat_lighting.vs", "2.2.flat_lighting.fs");
     Shader lightCubeShader("2.2.light_cube.vs", "2.2.light_cube.fs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
+    // set up vertex data (and buffer(s)) and configure vertex attributes
+    // ------------------------------------------------------------------
     float vertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+            // Front face (Z-)
+            -0.5f, -0.5f, -0.5f,  -0.3f,  -0.3f, -1.0f,
+             0.5f, -0.5f, -0.5f,  -0.3f,  -0.3f, -1.0f,
+             0.5f,  0.5f, -0.5f,  -0.3f,  -0.3f, -1.0f,
+             0.5f,  0.5f, -0.5f,   0.3f,   0.3f, -1.0f,
+            -0.5f,  0.5f, -0.5f,   0.3f,   0.3f, -1.0f,
+            -0.5f, -0.5f, -0.5f,   0.3f,   0.3f, -1.0f,
 
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+            // Back face (Z+)
+            -0.5f, -0.5f,  0.5f,  -0.3f,  -0.3f,  1.0f,
+             0.5f, -0.5f,  0.5f,  -0.3f,  -0.3f,  1.0f,
+             0.5f,  0.5f,  0.5f,  -0.3f,  -0.3f,  1.0f,
+             0.5f,  0.5f,  0.5f,   0.3f,   0.3f,  1.0f,
+            -0.5f,  0.5f,  0.5f,   0.3f,   0.3f,  1.0f,
+            -0.5f, -0.5f,  0.5f,   0.3f,   0.3f,  1.0f,
 
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+            // Left face (X-)
+            -0.5f,  0.5f,  0.5f, -1.0f,   0.3f,   0.3f,
+            -0.5f,  0.5f, -0.5f, -1.0f,   0.3f,   0.3f,
+            -0.5f, -0.5f, -0.5f, -1.0f,   0.3f,   0.3f,
+            -0.5f, -0.5f, -0.5f, -1.0f,  -0.3f,  -0.3f,
+            -0.5f, -0.5f,  0.5f, -1.0f,  -0.3f,  -0.3f,
+            -0.5f,  0.5f,  0.5f, -1.0f,  -0.3f,  -0.3f,
 
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+            // Right face (X+)
+             0.5f,  0.5f,  0.5f,  1.0f,   0.1f,   0.1f,
+             0.5f,  0.5f, -0.5f,  1.0f,   0.1f,   0.1f,
+             0.5f, -0.5f, -0.5f,  1.0f,   0.1f,   0.1f,
+             0.5f, -0.5f, -0.5f,  1.0f,  -0.3f,  -0.3f,
+             0.5f, -0.5f,  0.5f,  1.0f,  -0.3f,  -0.3f,
+             0.5f,  0.5f,  0.5f,  1.0f,  -0.3f,  -0.3f,
 
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+            // Bottom face (Y-)
+            -0.5f, -0.5f, -0.5f,   0.1f, -1.0f,   0.1f,
+             0.5f, -0.5f, -0.5f,   0.1f, -1.0f,   0.1f,
+             0.5f, -0.5f,  0.5f,   0.1f, -1.0f,   0.1f,
+             0.5f, -0.5f,  0.5f,  -0.3f, -1.0f,  -0.3f,
+            -0.5f, -0.5f,  0.5f,  -0.3f, -1.0f,  -0.3f,
+            -0.5f, -0.5f, -0.5f,  -0.3f, -1.0f,  -0.3f,
+
+            // Top face (Y+)
+            -0.5f,  0.5f, -0.5f,   0.1f,  1.0f,   0.1f,
+             0.5f,  0.5f, -0.5f,   0.1f,  1.0f,   0.1f,
+             0.5f,  0.5f,  0.5f,   0.1f,  1.0f,   0.1f,
+             0.5f,  0.5f,  0.5f,  -0.3f,  1.0f,  -0.3f,
+            -0.5f,  0.5f,  0.5f,  -0.3f,  1.0f,  -0.3f,
+            -0.5f,  0.5f, -0.5f,  -0.3f,  1.0f,  -0.3f,
+
+
+        // Front face pyramid (Z-)
+        -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f,
+         0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,
+
+        -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,
+         0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,
+
+         0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f,
+         0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,
+
+        -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,
+         0.0f,  0.0f, -1.0f,  0.0f,  0.0f, -1.0f,
+
+        // Back face pyramid (Z+)
+        -0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f,
+         0.0f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+
+        -0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f,
+         0.0f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+
+         0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f,
+         0.0f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+
+        -0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  0.5f,
+         0.0f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+
+        // Left face pyramid (X-)
+        -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f,
+        -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+
+        -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,
+        -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+
+        -0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f,
+        -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+
+        -0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f,
+        -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+
+        // Right face pyramid (X+)
+         0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f,
+         1.0f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+
+         0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f,
+         1.0f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+
+         0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f,
+         1.0f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+
+         0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,
+         1.0f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+
+        // Bottom face pyramid (Y-)
+        -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f,
+         0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,
+
+        -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f,
+         0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,
+
+         0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f,
+         0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,
+
+        -0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f,
+         0.0f, -1.0f,  0.0f,  0.0f, -1.0f,  0.0f,
+
+        // Top face pyramid (Y+)
+        -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,
+         0.0f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+        -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f,
+         0.0f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+         0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,
+         0.0f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+        -0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  0.5f,
+         0.0f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f
     };
     // first, configure the cube's VAO (and VBO)
     unsigned int VBO, cubeVAO;
@@ -174,9 +288,22 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // be sure to activate shader when setting uniforms/drawing objects
+        // Inside the render loop, before using lightingShader
+        // Calculate center point for the light's orbit
+        glm::vec3 lightCenter = glm::vec3(0.0f, 0.0f, 3.5f);
+
+        // Add at global scope after lightPos declaration
+        float lightRadius = 2.0f;     // radius of the circular path around current position
+        float lightSpeed = 1.0f;      // speed of rotation
+        float angle = static_cast<float>(glfwGetTime()) * lightSpeed;
+        // Calculate new position in a circular orbit
+        lightPos.x = lightCenter.x + sin(angle) * lightRadius;
+        lightPos.y = lightCenter.y + cos(angle) * lightRadius;
+        //lightPos.z = lightCenter.z + cos(angle) * lightRadius;
+
         lightingShader.use();
         lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        lightingShader.setVec3("lightColor", 1.2f, 1.2f, 1.2f);
         lightingShader.setVec3("lightPos", lightPos);
         lightingShader.setVec3("viewPos", camera.Position);
 
@@ -192,7 +319,7 @@ int main()
 
         // render the cube
         glBindVertexArray(cubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDrawArrays(GL_TRIANGLES, 0, 84);
 
 
         // also draw the lamp object
@@ -247,7 +374,7 @@ void processInput(GLFWwindow *window)
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and 
+    // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }

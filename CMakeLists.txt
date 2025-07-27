@@ -36,8 +36,14 @@ if(APPLE)
 endif(APPLE)
 
 if(WIN32)
-  set(LIBS glfw3 opengl32 assimp freetype irrKlang)
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    if(MINGW)
+        # For MinGW builds, use the .a library
+        set(LIBS libglfw3.a opengl32 libassimp.dll.a libfreetype.a irrKlang)
+    else()
+        # For MSVC builds
+        set(LIBS glfw3 opengl32 assimp freetype irrKlang)
+    endif()
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 elseif(UNIX AND NOT APPLE)
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
   find_package(OpenGL REQUIRED)
