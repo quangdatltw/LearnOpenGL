@@ -2,7 +2,7 @@
 out vec4 FragColor;
 
 flat in vec3 Normal;  // flat qualifier prevents interpolation
-in vec3 FragPos;
+flat in vec3 FragPos;
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;
